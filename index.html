@@ -3,38 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eşleştirme Oyunu</title>
+    <title>Eşleştirme Oyunu (Reklamlı)</title>
     <style>
+        /* Genel Sayfa Stilleri */
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start; /* İçeriği yukarıdan başlat */
             min-height: 100vh;
             background-color: #f0f0f0; /* Açık gri arka plan */
             font-family: 'Arial', sans-serif;
             margin: 0;
+            padding: 20px; /* Sayfa kenarlarına boşluk */
+            box-sizing: border-box; /* Padding'i toplam genişliğe/yüksekliğe dahil et */
         }
 
         h1 {
             color: #333;
             margin-bottom: 10px;
+            text-align: center;
         }
 
         #game-info {
             margin-bottom: 20px;
             font-size: 1.2em;
             color: #555;
+            text-align: center;
         }
 
+        /* Oyun Alanı Stilleri */
         #game-board {
             display: grid;
-            /* Kart sayısına göre sütun sayısını ayarlayabilirsiniz */
-            grid-template-columns: repeat(4, 100px); /* 4 sütunlu */
+            /* 4 sütunlu, her biri 100px genişliğinde */
+            grid-template-columns: repeat(4, 100px);
             gap: 10px; /* Kartlar arası boşluk */
             perspective: 1000px; /* 3D döndürme efekti için */
+            margin-bottom: 25px; /* Reklam alanı için daha fazla boşluk */
+            /* Oyun tahtasının toplam genişliği hesaplaması: (100px * 4) + (10px * 3) = 430px */
+            max-width: 430px; /* Ekran küçülünce taşmasın */
+            width: 100%; /* Esneklik */
+            justify-content: center; /* Grid'i ortala (eğer max-width etkiliyse) */
         }
 
+        /* Kart Stilleri */
         .card {
             width: 100px;
             height: 140px;
@@ -58,13 +70,16 @@
             align-items: center;
             justify-content: center;
             font-size: 3em; /* Sembol boyutu */
+            -webkit-backface-visibility: hidden; /* Safari uyumluluğu */
         }
 
         /* Kartın arka yüzü (başlangıçta görünen) */
         .card-back {
             background-color: #4a90e2; /* Mavi */
-            color: white; /* İsteğe bağlı: soru işareti vb. */
-            content: '?'; /* Arka yüze bir şey ekleyebiliriz */
+            color: white;
+            /* İsteğe bağlı: soru işareti ekleyebilirsiniz */
+            /* content: '?'; */
+            /* Veya doğrudan HTML içine ekleyin */
         }
 
         /* Kartın ön yüzü (sembolün olduğu taraf) */
@@ -80,7 +95,7 @@
             transform: rotateY(180deg);
         }
 
-        /* Eşleşen kartların görünümü (opsiyonel) */
+        /* Eşleşen kartların görünümü */
         .card.is-matched .card-front {
             background-color: #d4edda; /* Açık yeşil */
             opacity: 0.7; /* Biraz soluklaştır */
@@ -90,8 +105,21 @@
            box-shadow: 0 0 3px rgba(40, 167, 69, 0.8); /* Yeşil vurgu */
         }
 
+        /* --- ADSTERRA BANNER ALANI STİLİ --- */
+        #adsterra-banner-container {
+            width: 468px;  /* Adsterra kodundaki genişlik */
+            height: 60px;   /* Adsterra kodundaki yükseklik */
+            max-width: 100%; /* Küçük ekranlarda container'ın taşmasını önle */
+            margin: 20px auto; /* Üst/alt boşluk ve yatay ortalama */
+            overflow: hidden; /* İçeriğin (reklamın) taşmasını engelle */
+            /* Reklam yüklenmezse diye test için kenarlık eklenebilir: */
+            /* border: 1px solid #ccc; */
+            text-align: center; /* iframe'i ortalamaya yardımcı olabilir */
+        }
+        /* --- --- */
+
+        /* Kontrol Butonları ve Mesajlar */
         #restart-button {
-            margin-top: 20px;
             padding: 10px 20px;
             font-size: 1em;
             cursor: pointer;
@@ -100,6 +128,7 @@
             border: none;
             border-radius: 5px;
             transition: background-color 0.3s;
+            margin-top: 10px; /* Banner'dan sonraki boşluk */
         }
 
         #restart-button:hover {
@@ -112,9 +141,34 @@
             font-weight: bold;
             color: #28a745; /* Yeşil */
             display: none; /* Başlangıçta gizli */
+            text-align: center;
         }
 
+         /* Küçük Ekranlar İçin Ayarlamalar (Opsiyonel) */
+        @media (max-width: 480px) {
+            #game-board {
+                 /* Gerekirse sütun sayısı veya kart boyutu küçültülebilir */
+                 /* Örneğin: grid-template-columns: repeat(4, 80px); gap: 8px; */
+                 /* Veya kart boyutları küçültülür */
+                 max-width: 100%;
+            }
+            .card {
+                /* width: 80px; height: 112px; font-size: 2.5em; */
+            }
+            h1 {
+                font-size: 1.5em;
+            }
+            #game-info {
+                font-size: 1em;
+            }
+        }
+
+
     </style>
+
+    <!-- Popunder veya Social Bar gibi diğer Adsterra kodları gerekiyorsa buraya (head içine veya body sonuna) eklenebilir -->
+    <!-- Örnek: <script>...</script> -->
+
 </head>
 <body>
 
@@ -122,20 +176,45 @@
     <div id="game-info">
         Hamle Sayısı: <span id="moves">0</span>
     </div>
+
     <div id="game-board">
-        <!-- Kartlar JavaScript ile buraya eklenecek -->
+        <!-- Kartlar JavaScript ile buraya dinamik olarak eklenecek -->
     </div>
+
+    <!-- ===== ADSTERRA BANNER REKLAM ALANI (468x60) ===== -->
+    <div id="adsterra-banner-container">
+        <!-- Adsterra Tarafından Verilen Banner Kodu Başlangıç -->
+        <script type="text/javascript">
+            atOptions = {
+                'key' : 'd755c5ace10287209296868ecdc59b1b',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/d755c5ace10287209296868ecdc59b1b/invoke.js"></script>
+        <!-- Adsterra Tarafından Verilen Banner Kodu Bitiş -->
+    </div>
+    <!-- ============================================== -->
+
+
     <div id="win-message">Tebrikler, Kazandınız! 🎉</div>
     <button id="restart-button">Yeniden Başlat</button>
 
     <script>
+        // === OYUN MANTIĞI ===
+
+        // Gerekli DOM elementlerini seç
         const gameBoard = document.getElementById('game-board');
         const movesElement = document.getElementById('moves');
         const restartButton = document.getElementById('restart-button');
         const winMessage = document.getElementById('win-message');
 
-        // Kullanılacak semboller (çift olmalı)
-        const symbols = ['🍎', '🍌', '🍇', '🍊', '🍓', '🥝', '🍍', '🍒'];
+        // Kullanılacak semboller (çift sayıda olmalı)
+        const symbols = ['🍎', '🍌', '🍇', '🍊', '🍓', '🥝', '🍍', '🍒']; // 8 çift = 16 kart
+
+        // Oyun durumu değişkenleri
         let cards = []; // Tüm kartların DOM elementlerini tutacak dizi
         let cardSymbols = []; // Karıştırılmış semboller dizisi
         let flippedCards = []; // Şu anda açık olan kartlar (en fazla 2)
@@ -143,17 +222,24 @@
         let moves = 0; // Yapılan hamle sayısı
         let lockBoard = false; // Eşleşme kontrolü sırasında tahtayı kilitlemek için
 
+        // --- Yardımcı Fonksiyonlar ---
+
         // Fisher-Yates (Knuth) Karıştırma Algoritması
         function shuffle(array) {
             let currentIndex = array.length, randomIndex;
+            // Dizi bitene kadar karıştır
             while (currentIndex !== 0) {
+                // Kalan elemanlardan rastgele birini seç
                 randomIndex = Math.floor(Math.random() * currentIndex);
                 currentIndex--;
+                // Seçilen elemanla mevcut elemanı yer değiştir
                 [array[currentIndex], array[randomIndex]] = [
                     array[randomIndex], array[currentIndex]];
             }
             return array;
         }
+
+        // --- Oyun Fonksiyonları ---
 
         // Oyunu Başlatan veya Yeniden Başlatan Fonksiyon
         function initializeGame() {
@@ -167,56 +253,73 @@
             gameBoard.innerHTML = ''; // Önceki kartları temizle
             cards = []; // Kart dizisini temizle
 
-            // Sembolleri çoğalt ve karıştır
+            // Sembolleri çoğalt (her sembolden 2 tane) ve karıştır
             cardSymbols = shuffle([...symbols, ...symbols]); // Spread operatörü ile kopyala ve birleştir
 
             // Kartları oluştur ve oyun alanına ekle
             cardSymbols.forEach(symbol => {
-                const card = document.createElement('div');
-                card.classList.add('card');
-                card.dataset.symbol = symbol; // Sembolü data attribute olarak sakla
-
-                // Kartın ön ve arka yüzlerini oluştur
-                card.innerHTML = `
-                    <div class="card-face card-back">?</div>
-                    <div class="card-face card-front">${symbol}</div>
-                `;
-
-                card.addEventListener('click', handleCardClick);
-                gameBoard.appendChild(card);
-                cards.push(card); // Kart elementini diziye ekle
+                createCardElement(symbol);
             });
         }
 
+        // Verilen sembol için bir kart elementi oluşturur ve tahtaya ekler
+        function createCardElement(symbol) {
+             const card = document.createElement('div');
+             card.classList.add('card');
+             card.dataset.symbol = symbol; // Sembolü data attribute olarak sakla (kontrol için)
+
+             // Kartın ön ve arka yüzlerini oluştur
+             card.innerHTML = `
+                 <div class="card-face card-back">?</div>
+                 <div class="card-face card-front">${symbol}</div>
+             `;
+
+             // Tıklama olay dinleyicisini ekle
+             card.addEventListener('click', handleCardClick);
+
+             // Kartı oyun tahtasına ekle
+             gameBoard.appendChild(card);
+
+             // Oluşturulan kart elementini takip etmek için diziye ekle
+             cards.push(card);
+        }
+
+
         // Kart Tıklama Olayını Yöneten Fonksiyon
         function handleCardClick(event) {
-            // Tahta kilitliyse, tıklanan kart zaten açıksa veya eşleşmişse işlem yapma
-            if (lockBoard || event.currentTarget.classList.contains('is-flipped') || event.currentTarget.classList.contains('is-matched')) {
+            const clickedCard = event.currentTarget; // Tıklanan kart elementi
+
+            // Koşullar sağlanmıyorsa (tahta kilitli, kart zaten açık veya eşleşmiş) işlem yapma
+            if (lockBoard ||
+                clickedCard.classList.contains('is-flipped') ||
+                clickedCard.classList.contains('is-matched') ||
+                flippedCards.includes(clickedCard)) // Aynı karta çift tıklamayı engelle
+            {
                 return;
             }
 
-            const clickedCard = event.currentTarget;
-            flipCard(clickedCard);
-            flippedCards.push(clickedCard);
+            flipCard(clickedCard); // Kartı döndür
+            flippedCards.push(clickedCard); // Açık kartlar listesine ekle
 
-            // Eğer iki kart açıldıysa
+            // Eğer iki kart açıldıysa eşleşme kontrolü yap
             if (flippedCards.length === 2) {
-                incrementMoves();
+                incrementMoves(); // Hamle sayısını artır
                 lockBoard = true; // Kontrol bitene kadar başka karta tıklanmasını engelle
-                checkForMatch();
+                checkForMatch(); // Eşleşme var mı kontrol et
             }
         }
 
-        // Kartı Döndürme Fonksiyonu
+        // Kartı Döndürme Fonksiyonu (CSS sınıfı ekleyerek)
         function flipCard(card) {
             card.classList.add('is-flipped');
         }
 
         // Açılan İki Kartın Eşleşip Eşleşmediğini Kontrol Eden Fonksiyon
         function checkForMatch() {
-            const [card1, card2] = flippedCards;
-            const isMatch = card1.dataset.symbol === card2.dataset.symbol;
+            const [card1, card2] = flippedCards; // Açık olan ilk iki kartı al
+            const isMatch = card1.dataset.symbol === card2.dataset.symbol; // Sembolleri karşılaştır
 
+            // Duruma göre ilgili fonksiyonu çağır
             if (isMatch) {
                 cardsMatch();
             } else {
@@ -227,18 +330,24 @@
         // Kartlar Eşleştiğinde Çalışan Fonksiyon
         function cardsMatch() {
             const [card1, card2] = flippedCards;
+
+            // Kartları eşleşmiş olarak işaretle (CSS ve tıklama engeli için)
             card1.classList.add('is-matched');
             card2.classList.add('is-matched');
-            // is-flipped'i kaldırabiliriz ama is-matched zaten dönüşü koruyor
-            card1.classList.remove('is-flipped');
-             card2.classList.remove('is-flipped');
 
-            matchedPairs++;
-            resetBoardState();
+            // İsteğe bağlı: Dönmüş kalmaları için is-flipped'i kaldırmayabiliriz
+            // card1.classList.remove('is-flipped');
+            // card2.classList.remove('is-flipped');
 
-            // Tüm çiftler bulundu mu?
+            matchedPairs++; // Eşleşen çift sayısını artır
+            resetBoardState(); // Yeni hamle için tahtayı hazırla
+
+            // Tüm çiftler bulundu mu kontrol et
             if (matchedPairs === symbols.length) {
-                winMessage.style.display = 'block'; // Kazanma mesajını göster
+                 // Kısa bir gecikmeyle kazanma mesajını göster (son kartın dönmesi için)
+                setTimeout(() => {
+                     winMessage.style.display = 'block'; // Kazanma mesajını göster
+                }, 600); // 0.6 saniye sonra (animasyon süresi kadar)
             }
         }
 
@@ -247,10 +356,18 @@
             // Kartları kısa bir süre sonra geri çevir
             setTimeout(() => {
                 const [card1, card2] = flippedCards;
-                card1.classList.remove('is-flipped');
-                card2.classList.remove('is-flipped');
-                resetBoardState();
-            }, 1000); // 1 saniye bekle
+
+                // Kartların hala var olduğundan ve eşleşmediğinden emin ol
+                // (Çok hızlı tıklama veya yeniden başlatma durumlarına karşı)
+                if (card1 && !card1.classList.contains('is-matched')) {
+                    card1.classList.remove('is-flipped');
+                }
+                if (card2 && !card2.classList.contains('is-matched')) {
+                    card2.classList.remove('is-flipped');
+                }
+
+                resetBoardState(); // Yeni hamle için tahtayı hazırla
+            }, 1000); // 1 saniye bekleme süresi
         }
 
         // Hamle Sayısını Artıran Fonksiyon
@@ -261,12 +378,16 @@
 
         // Tahta Durumunu Sıfırlayan Fonksiyon (yeni hamle için)
         function resetBoardState() {
-            flippedCards = [];
-            lockBoard = false;
+            flippedCards = []; // Açık kart listesini boşalt
+            lockBoard = false;  // Tahta kilidini kaldır
         }
 
-        // Yeniden Başlat Butonuna Tıklanınca
+        // --- Olay Dinleyicileri ---
+
+        // Yeniden Başlat Butonuna Tıklanınca Oyunu Başlat
         restartButton.addEventListener('click', initializeGame);
+
+        // --- Oyun Başlatma ---
 
         // Sayfa Yüklendiğinde Oyunu Başlat
         initializeGame();
