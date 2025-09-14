@@ -3,345 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eşleştirme Oyunu (Mobil Uyumlu)</title>
+    <title>Praticase Tıbbi Notlar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Genel Sayfa Stilleri */
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            background-color: #f0f0f0;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 15px;
-            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
-
-        h1 {
-            color: #333;
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.8em;
-            text-align: center;
-        }
-
-        #game-info {
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            color: #555;
-            text-align: center;
-        }
-
-        /* Oyun Alanı Stilleri */
-        #game-board {
-            display: grid;
-            grid-template-columns: repeat(4, 90px);
-            gap: 8px;
-            perspective: 1000px;
-            margin-bottom: 20px;
-            width: fit-content;
-            max-width: 100%;
-            justify-content: center;
-        }
-
-        /* Kart Stilleri */
-        .card {
-            width: 90px;
-            height: 126px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            cursor: pointer;
-            background-color: transparent;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
-
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.8em;
-        }
-
-        .card-back {
-            background-color: #4a90e2;
-            color: white;
-        }
-
-        .card-front {
-            background-color: #fff;
-            color: #333;
-            transform: rotateY(180deg);
-        }
-
-        .card.is-flipped,
-        .card.is-matched {
-            transform: rotateY(180deg);
-        }
-
-        .card.is-matched .card-front {
-            background-color: #d4edda;
-            opacity: 0.7;
-        }
-        .card.is-matched {
-           cursor: default;
-           box-shadow: 0 0 3px rgba(40, 167, 69, 0.8);
-        }
-
-        /* --- ADSTERRA 468x60 BANNER ALANI STİLİ --- */
-        #adsterra-banner-container {
-            width: 468px;
-            height: 60px;
-            max-width: 100%;
-            margin: 20px auto;
+        .accordion-content {
+            max-height: 0;
             overflow: hidden;
-            text-align: center;
-            background-color: #e9e9e9; /* Placeholder */
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            padding: 0 1.5rem;
         }
-        /* --- --- */
-
-        /* Kontrol Butonları ve Mesajlar */
-        #restart-button {
-            padding: 12px 25px;
-            font-size: 1em;
-            cursor: pointer;
-            background-color: #5cb85c;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            margin-top: 10px;
+        .accordion-button.active + .accordion-content {
+            max-height: 40vh; /* Ekran yüksekliğinin %40'ı kadar açılsın */
+            overflow-y: auto; /* İçerik sığmazsa dikey kaydırma çubuğu görünsün */
+            padding: 1.5rem;
+            transition: max-height 0.5s ease-in, padding 0.5s ease-in;
         }
-
-        #restart-button:hover {
-            background-color: #4cae4c;
+        /* Estetik kaydırma çubuğu stilleri */
+        .accordion-content::-webkit-scrollbar {
+            width: 8px;
         }
-
-        #win-message {
-            margin-top: 15px; /* Butonla arasına boşluk */
-            margin-bottom: 10px; /* Butonla arasına boşluk */
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #28a745;
-            display: none;
-            text-align: center;
+        .accordion-content::-webkit-scrollbar-track {
+            background: #e5e7eb; /* bg-gray-200 */
+            border-radius: 10px;
         }
-
-        /* --- ADSTERRA NATIVE BANNER ALANI STİLİ --- */
-        #container-2f5bb1c5df431b457bfde1808fbdaf11 {
-            margin-top: 25px; /* Yeniden başlat butonuyla arasına boşluk */
-            margin-bottom: 15px; /* Sayfa sonuyla arasına boşluk */
-            max-width: 100%; /* Ekranı taşmasın */
-            /* Native reklamlar genellikle kendi genişliğini ayarlar, */
-            /* ama gerekirse merkezlemek için: */
-             margin-left: auto;
-             margin-right: auto;
-             text-align: center; /* İçeriği ortalamaya yardımcı olabilir */
-             /* Native reklamın minimum yüksekliği olmasını isterseniz: */
-             /* min-height: 100px; */
+        .accordion-content::-webkit-scrollbar-thumb {
+            background: #9ca3af; /* bg-gray-400 */
+            border-radius: 10px;
         }
-        /* --- --- */
-
-
-         /* === MOBİL CİHAZLAR İÇİN MEDIA QUERY === */
-        @media (max-width: 600px) {
-            h1 { font-size: 1.5em; }
-            #game-info { font-size: 1em; margin-bottom: 15px; }
-
-            #game-board {
-                 grid-template-columns: repeat(4, 70px);
-                 gap: 6px;
-                 margin-bottom: 15px;
-            }
-            .card { width: 70px; height: 98px; border-radius: 5px; }
-            .card-face { font-size: 2.2em; border-radius: 5px; }
-            #adsterra-banner-container { margin-top: 15px; }
-            #restart-button { padding: 10px 20px; }
-            #win-message { font-size: 1.2em; }
-            #container-2f5bb1c5df431b457bfde1808fbdaf11 { margin-top: 20px; } /* Mobil için boşluk ayarı */
+        .accordion-content::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* bg-gray-500 */
         }
-
-        @media (max-width: 360px) {
-             #game-board { grid-template-columns: repeat(4, 60px); gap: 5px; }
-             .card { width: 60px; height: 84px; }
-             .card-face { font-size: 1.9em; }
+        .rotate-180 {
+            transform: rotate(180deg);
         }
-
+        .transition-transform {
+            transition: transform 0.3s ease-in-out;
+        }
     </style>
-
-    <!-- Diğer Adsterra kodları (Popunder vb.) gerekiyorsa buraya -->
-
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800">
 
-    <h1>🃏 Eşleştirme Oyunu 🃏</h1>
-    <div id="game-info">
-        Hamle Sayısı: <span id="moves">0</span>
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Praticase Tıbbi Notlar</h1>
+            <p class="text-gray-600 mt-2">Sık karşılaşılan durumlar için pratik tedavi yaklaşımları.</p>
+        </header>
+
+        <div id="accordion-container" class="space-y-4">
+            <!-- Accordion items will be dynamically generated here -->
+        </div>
     </div>
-
-    <div id="game-board">
-        <!-- Kartlar JavaScript ile buraya eklenecek -->
-    </div>
-
-    <!-- ===== ADSTERRA 468x60 BANNER REKLAM ALANI ===== -->
-    <div id="adsterra-banner-container">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'd755c5ace10287209296868ecdc59b1b',
-                'format' : 'iframe',
-                'height' : 60,
-                'width' : 468,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/d755c5ace10287209296868ecdc59b1b/invoke.js"></script>
-    </div>
-    <!-- ============================================== -->
-
-
-    <div id="win-message">Tebrikler, Kazandınız! 🎉</div>
-    <button id="restart-button">Yeniden Başlat</button>
-
-    <!-- ===== ADSTERRA NATIVE BANNER REKLAM ALANI ===== -->
-    <div id="container-2f5bb1c5df431b457bfde1808fbdaf11"></div>
-    <script async="async" data-cfasync="false" src="//pl26557875.profitableratecpm.com/2f5bb1c5df431b457bfde1808fbdaf11/invoke.js"></script>
-    <!-- ============================================ -->
 
     <script>
-        // === OYUN MANTIĞI (JavaScript kodunda değişiklik yok) ===
-        // ... (Önceki JavaScript kodunun tamamı buraya gelecek) ...
-        const gameBoard = document.getElementById('game-board');
-        const movesElement = document.getElementById('moves');
-        const restartButton = document.getElementById('restart-button');
-        const winMessage = document.getElementById('win-message');
-        const symbols = ['🍎', '🍌', '🍇', '🍊', '🍓', '🥝', '🍍', '🍒'];
-        let cards = [];
-        let cardSymbols = [];
-        let flippedCards = [];
-        let matchedPairs = 0;
-        let moves = 0;
-        let lockBoard = false;
+        const data = [
+            { title: "DEMİR EKSİKLİĞİ ANEMİSİ", content: "<p><b>1.)</b> Ferrosanol duodenal cap 1x1 (tok), eğer anemi derinse 2x1.</p><p class='mt-2 text-gray-600'>Eğer hastanın anemisi demir tedavisi ile düzelmiyorsa talasemi taşıyıcılığı yönünden incelenmesi amacıyla hastaya poliklinik önerilmelidir.</p>" },
+            { title: "ALLERJİK RİNİT", content: "<p>Gözlerde sulanma, burunda seröz akıntı, hapşırık olabilir. Genelde bahar aylarında olur.</p><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Bilaxten tb:</b> 1x1</li><li><b>Nasonex sprey:</b> 1x2 puf (semptomlar geçince 1x1 puf)</li><li><b>Patanol %0,1 oft sol:</b> Göz yaşarması varsa 2x1 damla</li></ul>" },
+            { title: "AKUT GASTROENTERIT", content: "<p>Elektrolitlere dikkat edilmeli. Ve ağır dehidratasyon varsa çocuğa 20 mg/kg izomix, yetişkine 500-1000 cc SF verilmelidir. Genellikle viraldir.</p><div class='mt-4'><strong class='block text-lg font-semibold text-sky-700'>VİRAL</strong><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Reflor saşe:</b> 2x1</li><li><b>Georal poşet:</b> Her dışkıdan sonra 1 çay bardağı. Kusarsa beklenir, sonra tekrar verilir.</li><li>Muz, şeftali, pirinç gibi posalı besinleri azar azar sık sık yemelidir.</li></ul><p class='mt-2 text-gray-600'>İki haftayı geçen ishale kronik ishal denir, araştırılmalıdır. Ateş, dışkıda kan veya mukus ve >4 gün süren ishal varsa antibiyotik gereklidir. Etken önce bakteri olarak düşünülür, tedavi ile düzelme olmazsa parazit düşünülür.</p></div><div class='mt-4'><strong class='block text-lg font-semibold text-sky-700'>BAKTERİYEL</strong><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Cipro 500 mg tb:</b> 2x1 (5 gün)</li><li><b>Buscopan tb:</b> 2x1</li><li><b>Reflor saşe:</b> 2x1</li></ul></div><div class='mt-4'><strong class='block text-lg font-semibold text-sky-700'>PARAZİTER</strong><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Flagyl 500 mg tb:</b> 2x1 (10 gün)</li><li><b>Buscopan tb:</b> 2x1</li><li><b>Reflor saşe:</b> 2x1</li></ul></div>" },
+            { title: "ARPACIK (HORDEOLUM)", content: "<ul class='list-disc list-inside space-y-1'><li><b>Gentagut damla:</b> 4x4</li><li><b>Terramycin pomad:</b> 1x1 (yatmadan)</li><li>Günde 3 kez sıcak pansuman (veya soğuk çay pansumanı önerebiliriz).</li><li>Ağrı kesici olarak <b>Parol tb</b> 4x1 eklenebilir.</li></ul>" },
+            { title: "AFT", content: "<ul class='list-disc list-inside space-y-1'><li><b>Andorex gargara:</b> 4x1 (6 yaş altında kullanılmaz)</li><li><b>Calgel jel:</b> 3x1 (yemekten 15 dk önce sürülecek)</li><li><b>Kenacort orobase pomad:</b> 3x1 (yemekten sonra sürülecek)</li></ul><p class='mt-2 text-gray-600'>Hastada sık sık aftlar çıkıyorsa behçet hastalığı yönünden incelenmesi için sevk edilmelidir.</p>" },
+            { title: "ANAL FISSUR", content: "<ul class='list-disc list-inside space-y-1'><li><b>Anestol pomad:</b> 2x1</li><li><b>Madecassol pomad:</b> 2x1</li><li><b>Osmolac şurup:</b> 2x1 (kabızlık varsa)</li><li>Ağrısı için <b>Dolorex:</b> 3x1</li></ul><p class='mt-2 text-gray-600'>Her akşam sıcak suda otursun. Posalı yiyecekler yesin.</p>" },
+            { title: "BEL AĞRISI (LUMBALJİ)", content: "<p>Nörolojik bulgu yoksa Dikloron + Muscoril yaptır. (IM)</p><p class='mt-2 font-semibold'>Reçete:</p><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Dicloron tb:</b> 1x1</li><li><b>Voltaren tb:</b> 1x1</li></ul>" },
+            { title: "BAŞ AĞRISI", content: "<p>Ense sertliği ve ateş kontrolü yapılmalıdır. Primer baş ağrısı olduğundan emin olunursa Dikloron amp yaptırılır (IM).</p><p class='mt-2 font-semibold'>Reçete:</p><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Parol 500 mg tb:</b> 4x1 veya <b>Dolorex tb:</b> 2x1</li><li>Bulantısı varsa, bu bulantı migrene bağlı ise, kusmaya ishale bağlı değilse <b>Metpamid tb:</b> 3x1</li></ul>" },
+            { title: "BÖCEK SOKMASI", content: "<p class='font-semibold'>Yetişkin:</p><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Bilaxten tb:</b> 1x1</li><li><b>Stilex krem:</b> 2x1</li><li>Klinik ilerlerse enfekte olursa: <b>Cipro 500 mg tb</b> 2x1 veya <b>Aksef 500 mg</b> 2x1</li></ul>" },
+            { title: "BURKULMA", content: "<ul class='list-disc list-inside space-y-1'><li><b>Fastjel jel:</b> 2x1 (soğutucu NSAİİ)</li><li><b>Muscoril jel:</b> 2x1 (kas gevşetici)</li><li><b>Lasonil jel:</b> 2x1 (kızarıklık giderici)</li><li><b>Parol tb:</b> 4x1</li></ul>" },
+            { title: "BUŞON", content: "<p><b>Glyserin damla:</b> 4x3 (5 gün) - Oksibor sonra kulak yıkatılacak. (Ücretli alınır SGK karşılamaz.)</p><p class='mt-2 text-gray-600'>Hasta gliserin damla kullanımından sonra bir kulak burun boğaz uzmanına yönlendirilmelidir.</p>" },
+            { title: "BİT", content: "<p>5 gün boyunca çarşaflar kaynatılmalı ütülenmeli. Tüm aile tedavi edilmeli.</p><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Kwellada şampuan:</b> Önce sabunla yıkanır. Sonra 10 ml şampuan alarak köpürterek yıkanır, 5 dk beklenir ve durulanır. Ertesi gün tekrar edilmelidir.</li><li>Yumurtaları dökmek için seyreltilmiş sirke ile saçlar taranır.</li></ul>" },
+            { title: "BLEFARİT", content: "<ul class='list-disc list-inside space-y-1'><li><b>Blefamide gtt:</b> 3x1</li><li><b>Terramycin pomad:</b> 1x1</li></ul>" },
+            { title: "BASI YARASI", content: "<p>Bası olan yere Novuksol pomad tabaka halinde sürülür. Havalı yatak kullanımı önerilir.</p><p class='mt-2 text-gray-600'>Yeni açılmış yüzeyel yara ise Batticon solüsyon ile günde iki kez temizlik yapılır, nekrotik yara ise Rifli pansuman yapılır. Hasta plastik cerrahiye sevk edilir.</p>" },
+            { title: "D VİT EKSİKLİĞİ / PROFİLAKSİSİ", content: "<div class='mt-2'><strong class='block font-semibold text-sky-700'>Eksiklikte:</strong><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Ca laktat poşet:</b> 4x1 (bir poşet ilaç mama veya meyve suyuna karıştırılarak içirilecek) (10 gün)</li><li><b>Devit-3 amp:</b> 1x1 (tek doz) (kalsiyumun 5. gününde 1 amp devit kırılıp içirilecek.)</li><li><b>Devit-3 damla:</b> 1x3 damla (sabah tek seferde ağza damlatılacak) (2 yıl)</li></ul></div><div class='mt-4'><strong class='block font-semibold text-sky-700'>Sadece profilaksi amacıyla ise:</strong><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Devit-3 damla:</b> 1x3 damla</li></ul></div>" },
+            { title: "DİZ AĞRISI", content: "<ul class='list-disc list-inside space-y-1'><li><b>Fast jel:</b> 2x1</li><li><b>Dikloron tb:</b> 2x1</li><li><b>Lansor:</b> 1x1</li></ul>" },
+            { title: "DENTAL ABSE", content: "<p>Dişte çürüğün yanı sıra şişlik de vardır.</p><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Klindan 500 mg tb:</b> 2x1 (5 gün)</li><li>Sonra mutlaka diş hekimine gidecek. Diş çürüklerinin ve abselerinin sadece antibiyotikle tedavi olmayacağı mutlaka hatırlatılmalı.</li><li><b>Dikloron tb:</b> 3x1</li><li><b>Lansor:</b> 1x1</li><li>Çocuksa dikloron yerine calpol ve pedifen dönüşümlü verilmeli.</li></ul>" },
+            { title: "DİSMENORE", content: "<p>Arveles + buscopan yaptır (IM/İV)</p><p class='mt-2 font-semibold'>Reçete:</p><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Dikloron tb:</b> 2x1</li><li><b>Buscopan:</b> 2x1</li></ul>" },
+            { title: "DAKRİOSİSTİT", content: "<ul class='list-disc list-inside space-y-1'><li><b>Gentagut damla:</b> 4x1</li><li><b>Amoklavin tb:</b> 3x1</li><li>Günde 3 kez sıcak pansuman</li><li>Pomad verilmez, gözyaşı drenajını bozar.</li></ul>" },
+            { title: "DİAPER DERMATİT (PİŞİK)", content: "<ul class='list-disc list-inside space-y-1'><li><b>Bepanthene pomad:</b> 3x1</li><li>Mantar varsa <b>Mycospor pomad:</b> 2x1 (lay)</li><li>Diare de varsa <b>Tiocell krem:</b> 2x1</li></ul>" },
+            { title: "DERİN VEN TROMBOZU", content: "<p>Hastada homans bulgusu pozitiftir, yani ayak dorsifleksiyonunda ağrı olur.</p><p class='mt-2'><b>Clexane 6000</b> veya <b>8000</b> ünite yapılır. KVC konsültasyon gerekir sevk edilir.</p>" },
+            { title: "DİSK HERNİSİ", content: "<p>İlerleyip nörolojik sorunlara sebep olabileceği için beyin cerrahisi polikliniğine sevk edilir. Düşük ayak ve idrar kaçırma varsa hemen sevk edilmelidir.</p><p class='mt-2'>Kronik hastalara dikloron + muscoril yapılarak biraz rahatlaması sağlanabilir. Ağrı azalmazsa 100 mg Contramal yapabiliriz.</p>" },
+            { title: "EGZEMA", content: "<ul class='list-disc list-inside space-y-1'><li><b>Dermovate pomad:</b> 2x1</li><li>Kaşıntı varsa <b>Bilaxten tb:</b> 2x1/1x1</li></ul>" },
+            { title: "EKLEM AĞRISI", content: "<p>(septik artrit değilse)</p><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Fast jel:</b> 2x1 (soğutucu NSAİİ)</li><li><b>Muscoril jel:</b> 2x1</li><li><b>Dikloron tb:</b> 2x1</li><li><b>Panto:</b> 1x1 (dikloron nedeniyle)</li></ul>" },
+            { title: "FARENJİT", content: "<ul class='list-disc list-inside space-y-1'><li><b>Tantum verde gargara:</b> 4x1</li><li><b>Augmentin 1000 mg:</b> 2x1</li><li><b>Parol tb:</b> 4x1</li></ul>" },
+            { title: "FOLLİKULİT", content: "<p>Tedavi impetigodaki gibidir.</p><ol class='list-decimal list-inside mt-2 space-y-2'><li><b>TEMİZLİK & YEREL BAKIM:</b> Krutlar (kabuklar), zeytinyağı ile yumuşatılarak temizlenir. Ardından bölge su ve sabun ile nazikçe yıkanır.</li><li><b>SULANTILI DÖNEMDE:</b> Sulantı varsa, bölgeye: %2 Eau borique (borik asitli su) ile günde birkaç kez pansuman.</li><li><b>SULANTIDAN SONRA (Kurutma sonrası):</b> Fucidin pomad (fusidik asit) → Günde 2 kez (2x1) lokal uygulanır.</li><li><b>SİSTEMİK TEDAVİ (Yaygın veya ilerlemiş olgularda):</b> Antibiyotik tedavisi endikedir: Amoklavin (Amoksisilin+Klavulanik asit). Süspansiyon: 200 mg veya 400 mg (hastanın kilosuna göre). Tablet: 625 mg 2x1 → Günde 2 eşit dozda verilir.  NOT: PDF BAK!!</li></ol>" },
+            { title: "PERİFERİK FASİYAL PARALİZİ", content: "<p>Fasiyal paralizinin çeşitli sebepleri vardır. En sık görüleni Bell paralizisi'dir. Bell paralizisinde yüz felci dışında bulgu yoktur. Sebebi tam olarak bilinmemektedir.</p><ol class='list-decimal list-inside mt-2 space-y-1'><li><b>Valtrex 1000 mg:</b> 2x1</li><li><b>Asiviral:</b> 3x1</li><li><b>Dolorex:</b> 3x1</li><li>KBB polk önerelim.</li></ol>" },
+            { title: "FRONKÜL/KARBONKÜL", content: "<p>Etken staf. Aereustur. Fluktuan abse ise drene edilmeli. Sık sık tekrarlıyosa immunsupresyon, DM olabilir.</p><p class='mt-2'><b>Aksef 2x1</b> ve <b>Bactroban 3x1</b> yazalım.</p>" },
+            { title: "FMF ATAK", content: "<ol class='list-decimal list-inside space-y-1'><li>Dikloron IM yapalım. Eğer geçmezse 250 cc SF içinde BUSCOPAN+ARVELES yapalım. Yine geçmezse 150 cc sf içinde 100 mg contramal yapalım.</li><li>40 mg prednol</li><li>Kolşisin kullanıyorsa iki tane aynı anda alsın.</li></ol>" },
+            { title: "GASTRİT", content: "<ul class='list-disc list-inside space-y-1'><li><b>Lansor 30 mg tb:</b> 1x1</li><li><b>Rennie duo süsp:</b> 3x1</li><li><b>Spasmomen tb:</b> 3x1</li></ul>" },
+            { title: "GAZ (FLATUS)", content: "<p>Normalde gaz şikayetini geçirmek çok iyi değildir, ama hasta sürekli bu durumdan şikayetçiyse aşağıdaki tedavi verilebilir.</p><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Metsil:</b> 3x1</li><li><b>Buscopan tb:</b> 3x1 (Erişkin)</li></ul>" },
+            { title: "GONARTROZ", content: "<ul class='list-disc list-inside space-y-1'><li><b>Sulidin jel:</b> 2x1</li><li><b>Majezik tb:</b> 2x1</li><li><b>Panto:</b> 1x1</li></ul>" },
+            { title: "GENİTAL ÜLSER/SİĞİL", content: "<div><h4 class='font-bold text-sky-700'>HERPES:</h4><p><b>Asiviral 400 mg tb:</b> 3x1 (7gün), tekrarlayan herpes ise 5 gün.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>HPV:</h4><p><b>Podofilm:</b> %20'lik tentür benzoat içinde hazırlanır. Sadece siğile sürülür, çevre doku vazelinle korunmalıdır. İki saat bekletilip yıkanır. Gebede kullanılmamalı.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>SİFİLİZ:</h4><p><b>Deposilin 2,4 m Ü:</b> 1x1 (IM) (tek doz). Bu dozun yarısı bir gluteusa kalan yarısı da diğer gluteusa yapılabilir. Allerji varsa <b>tetradox 100 mg tb:</b> 2x1 (15 gün).</p></div><p class='mt-4 font-bold'>MUTLAKA POLK. ÖNERİLMELİ.</p>" },
+            { title: "GENİTAL AKINTI", content: "<div><h4 class='font-bold text-sky-700'>BAKTERİYEL VAGİNOZİS:</h4><p><b>Flagyl 500 mg tb:</b> 1x4 tb (tek doz).</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>TRICHOMONAS:</h4><p><b>Flagyl 500 mg tb:</b> 1x4 tb (tek doz).</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>CANDİDİAZİS:</h4><p><b>Flucan 150 mg cap:</b> 1x1 (tek doz).</p></div>" },
+            { title: "GÖZ KURULUĞU", content: "<p><b>Tears naturale free damla:</b> 4x1</p>" },
+            { title: "GÜNEŞ YANIĞI", content: "<ul class='list-disc list-inside space-y-1'><li><b>Xyzal tb:</b> 1x1</li><li><b>Betnovate krem:</b> 2x1 (7gün)</li></ul><p class='mt-2'>Güneşe çıkmadan yarım saat önce güneş kremi sürülecek, her iki saatte bir yenilenecek.</p>" },
+            { title: "GEBE/EMZİREN REÇETELERİ", content: "<div><h4 class='font-bold text-sky-700'>FE EKSİKLİĞİ:</h4><p>Gynoferrosanol cap 1x1---2x1 ferritin düzelene kadar. İçinde b12 ve folat da var.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>ÜSYE-İYE-DENTAL ABSE:</h4><p>Augmentin 1000 mg tb 2x1 (10 gün). Dental absede 5 gün.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>FOLİK ASİT:</h4><p>Folbiol 1x1.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>BULANTI-KUSMA:</h4><p>100 cc SF veya %5 dekstroz içine 1 amp metpamid koyulup yapılır. (İlk trimesterda metpamid 2.-3. Trimesterda zoffran tercih edilmelidir.) Reçete olarak da prilam 2x1 veya dramamine tb 2x1 verilir.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>REFLÜ:</h4><p>Gaviscon şurup 4x1 (yemekten sonra ve gece yatarken).</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>HEMOROID:</h4><p>Anestol pomad 2x1, Gliserin fitil 2x1, Ilık oturma banyosu, Lifli gıdalar, acılı ekşili baharatlıdan uzak durma.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>VAGINAL CANDİDİAZİS:</h4><p>Gyno-canesten-1 vag tb 1x1 (tek doz), Gynophilus vag cap 2x1 (7gün).    NOT: PDF BAK!!</p></div>" },
+            { title: "SALDIRGANLIK", content: "<p>Norodol + akineton aynı enjektöre çekerek IM yaptır ve psikiatri konsültasyonu istenmeli veya sevk edilmelidir.</p>" },
+            { title: "HİPOTİROİDİ KOMASI (MIXÖDEM KOMASI)", content: "<div><h4 class='font-bold text-sky-700'>GENEL BİLGİ:</h4><p>Nadir ama yaşamı tehdit eden klinik tablodur. Genellikle yaşlı, kadın, altta yatan hipotiroidili ve tetikleyici faktöre maruz kalan bireylerde görülür.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>KLİNİK BELİRTİLER:</h4><p>Hipotermi, bradikardi, hipotansiyon. Hipoventilasyon, bilinç bozukluğu (konfüzyon, stupor, koma). Yüzde ödem, kuru cilt, konuşmada yavaşlama. Hipoglisemi, hiponatremi.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>ACİL YAKLAŞIM & TEDAVİ ADIMLARI:</h4><ol class='list-decimal list-inside space-y-2'><li><b>Kortikosteroid Desteği:</b> IV Prednol 100 mg (metilprednizolon) → Adrenal yetmezlik olasılığına karşı ilk basamak!</li><li><b>Tiroid Hormon Replasmanı:</b> T3 (liotironin) tercih edilir, yoksa T4 IV verilebilir. T3→ Nazogastrik (NG) sonda ile verilir. Alternatif: Levotiroksin IV (T4) 200-500 mcg bolus, ardından günlük dozla devam (50-100 mcg/gün).</li><li><b>Antibiyotik Başla:</b> Eşlik eden enfeksiyon çoğu vakada tetikleyicidir.→ Ampirik antibiyotik başlanmalıdır. (Örn: seftriakson + klaritromisin).</li><li><b>Oksijen Desteği:</b> Hipoventilasyon riski nedeniyle oksijen verilmeli, gerekirse entübasyon düşünülmelidir.</li><li><b>Isı Kontrolü (Hipotermiden Koruma):</b> Yavaş ve pasif ısıtma: Battaniye, ortam sıcaklığı artırımı. Ani ısıtma kontrendike!</li></ol></div><div class='mt-3'><h4 class='font-bold text-sky-700'>DİĞER DESTEKLER:</h4><p>IV sıvı desteği, hipoglisemi varsa glukoz infüzyonu, elektrolit takibi, EKG izlemi. NOT: PDF BAK!!</p></div>" },
+            { title: "HİPERHİDROZ (aşırı terleme)", content: "<ul class='list-disc list-inside space-y-1'><li><b>Alüminyum cloride 20 g + alcohol% 40 80 cc</b> hazırlat, 1x1 (parmak aralarına sürmesin).</li><li><b>Terkur krem 1x1</b> (gece sürülecek) ilk 4 gün her gece, daha sonra daha seyrek sürülecek.</li></ul>" },
+            { title: "İMPETİGO", content: "<div><h4 class='font-bold text-sky-700'>KLİNİK BULGULAR:</h4><p>Bül, püstül ve sarı-kahverengi krutlar (kabuklanma). Genellikle ağrısızdır, ancak kaşıntı olabilir. Yüz, kol, bacak gibi açıkta kalan bölgelerde sık görülür.</p></div><ol class='list-decimal list-inside mt-3 space-y-2'><li><b>TEMİZLİK & YEREL BAKIM:</b> Krutlar (kabuklar), zeytinyağı ile yumuşatılarak temizlenir. Ardından bölge su ve sabun ile nazikçe yıkanır.</li><li><b>SULANTILI DÖNEMDE:</b> Sulantı varsa, bölgeye: %2 Eau borique (borik asitli su) ile günde birkaç kez pansuman.</li><li><b>SULANTIDAN SONRA (Kurutma sonrası):</b> Fucidin pomad (fusidik asit) → Günde 2 kez (2x1) lokal uygulanır.</li><li><b>SİSTEMİK TEDAVİ (Yaygın veya ilerlemiş olgularda):</b> Antibiyotik tedavisi endikedir: Amoklavin (Amoksisilin+Klavulanik asit). Süspansiyon: 200 mg veya 400 mg. Tablet: 625 mg 2x1.</li></ol><div class='mt-3'><h4 class='font-bold text-sky-700'>DİKKAT EDİLECEKLER:</h4><p>Eşyalar ayrılmalı, el hijyeni sağlanmalı. Temasla kolay bulaşır. Okul çağındaki çocuklarda bulaş zinciri kırılmalı.</p></div>" },
+            { title: "İŞTAHSIZLIK", content: "<p><b>Zinco fort şurup 2x1</b> veya <b>Zinco-C tb 1x1</b></p>" },
+            { title: "İDRAR YOLU ENFEKSİYONU (ÜST İYE)", content: "<ul class='list-disc list-inside space-y-1'><li><b>Piyeloseptyl cap:</b> 3x1 (tok)</li><li><b>Buscopan tb:</b> 3x1</li><li><b>Monurol:</b> 1x1</li><li><b>Parol tb:</b> 4x1</li></ul>" },
+            { title: "İDRAR YOLU ENFEKSİYONU (ALT İYE)", content: "<p>Semptom varsa kızlarda 10 üzeri 3, erkeklerde 10 üzeri 2 anlamlı bakteriüridir. Piyüri idrarda lökosit olmasıdır. Her alanda 10 lökosit olması piyüri demektir.</p><div class='mt-2'><strong class='block font-semibold text-sky-700'>Yetişkin:</strong><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Monurol sașe 1x1</b> (tek doz) 1 bardak suda hazırlanır ve yatmadan önce içilir. (16 yaş altına verilmez).</li><li>Orak ab eklenebilir. (Cipro 2x1, Aksef 2x1).</li><li>Kolik ağrı varsa <b>Buscopan tb 3x1</b> da verilebilir.</li><li>Gebelerde <b>Aksef 2x1</b>.</li></ul></div>" },
+            { title: "İDRAR İNKONTİNANSI", content: "<ul class='list-disc list-inside space-y-1'><li><b>Ürispas tb:</b> 3x1</li><li><b>Spazmex 30 mg tb:</b> 2x1</li><li>Gerekli ise sevk edilir. (NÖBET, SVO, BEL FITIĞI...)</li></ul>" },
+            { title: "İNTERTRİGO", content: "<p>İntertriginöz bölgelerde yani kıvrım yerlerinde görülen eritem ve maserasyondur. Sekonder enfeksiyon eklenebilir.</p><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Eau borique %2 sol:</b> 1x1 (haricen)</li><li><b>Nerisona-C krem:</b> 1x1 (haricen)</li></ul>" },
+            { title: "KESİ", content: "<ul class='list-disc list-inside space-y-1'><li>Tetanoz aşısı yapılır. (Son 5 yıl içinde aşı yaptırmışsa tek doz yeterlidir.) Sütur atılır.</li><li><b>Amoklavin 1000 mg tb:</b> (2x1 tb) 2 eşit dozda verilir.</li><li><b>Parol tb:</b> 4x1</li></ul><p class='mt-2 font-bold'>TENDON VE ARTER YARALANMASINA DİKKAT ET. KAPİLLER DOLUMU VE KAS HAREKETLERİNİ DEĞERLENDİR. ŞÜPHE VARSA PLASTİK CERRAHİ İÇİN SEVK ET.</p>" },
+            { title: "KONSTİPASYON", content: "<ul class='list-disc list-inside space-y-1'><li><b>Osmolac şurup:</b> 1x1</li><li><b>Proctoglyvenol krem:</b> 2x1</li></ul>" },
+            { title: "KONVERSİYON", content: "<p>Önce organik sebepleri ekarte edilmeli. Nörolojik muayene yapılmalı. Konversiyondan eminsen: saldırganlık varsa 5 mg diazem'i 250 veya 500 cc SF içinde sulandır ve yavaş infüzyonla gönder. Diazem solunumu deprese etme riski daha fazladır. SF içinde yavaşça gönderilirse risk azalır. Mecbur kalınan durumlarda IM yapılır.</p>" },
+            { title: "KORNEA YARALANMASI/YABANCI CİSİM", content: "<ol class='list-decimal list-inside space-y-3'><li><b>DEĞERLENDİRME & TEMİZLİK:</b> Göz ve göz kapağını 15 dakika boyunca bol Serum Fizyolojik (SF) ile yıka. Göz kırpma refleksi, görme seviyesi ve yabancı cismin yeri kontrol edilir.</li><li><b>YABANCI CİSİMİN ÇIKARILMASI:</b> Sadece yüzeyel ve kolay görülen yabancı cisimlerde uygulanır. Adımlar: Novesin veya Alcaine damlat → 3 dakika bekle. Steril spanç veya intraket plastiği ile nazikçe çıkar. Göz bolca tekrar yıkanır. Derin yerleşim, korneaya gömülü veya şüpheli perforasyon varsa dokunma! Göz kapatılır, hasta hemen göz hekimine sevk edilir.</li><li><b>MEDİKAL TEDAVİ:</b> Gentagut damla: 3x2. Terramycin göz pomadı: 1x1 (gece). Sikloplejin damla: 1x1 (gece) → Sadece travmadan sonra 24 saat geçmişse.</li><li><b>GÖZ HEKİMİNE SEVK ENDİKASYONLARI:</b> Yabancı cisim çıkarılamıyorsa, korneada kesik/derin erozyon varsa, görme azalmışsa, şiddetli ağrı, ışık hassasiyeti, bulanık görme varsa, giriş travması 24 saati geçmişse.  NOT: PDF BAK!!!</li></ol>" },
+            { title: "KAYNAK IŞIĞINA MARUZİYET", content: "<ul class='list-disc list-inside space-y-1'><li><b>Sikloplejin göz damlası:</b> 2x1</li><li><b>Terramycin pomad:</b> 3x1</li><li><b>Refresh:</b> 6x1</li></ul>" },
+            { title: "KONJUNKTİVİT", content: "<div><h4 class='font-bold text-sky-700'>Bakteriyelse:</h4><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Gentagut damla:</b> 4x2 (7 gün)</li><li><b>Terramycin pomad:</b> 1x1 (gece)</li><li>Bulanık görme varsa göz doktoru için sevk gerekir.</li></ul></div><div class='mt-3'><h4 class='font-bold text-sky-700'>Allerjikse:</h4><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Patanol oft. Sol.:</b> 6x1</li><li>Şiddetliyse <b>flarex damla:</b> 4x1 (15 gün)</li></ul></div>" },
+            { title: "TAŞ / KUM DÜŞÜRME (Renal Kolik / Üreter Taşı Şüphesi)", content: "<div><h4 class='font-bold text-sky-700'>KLİNİK BELİRTİLER:</h4><p>Kolik tarzı şiddetli ağrı (bel, yan, kasık). Huzursuzluk, kıvranma. Hematüri. Mide bulantısı, kusma. Taş düşüren hasta hareket eder, akut batın hastası kıpırdayamaz.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>TEDAVİ (İlk Müdahale):</h4><p>250 CC SF içinde 1 amp arveles ve 1 amp buscopan IV. Geçmezse 250 cc sf içinde 100 mg contramal.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>TANIYA YÖNELİK:</h4><p>TİT, Tam Kan, USG, BT-ÜRO.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>DİĞER ÖNERİLER:</h4><p>Bol sıvı, idrar takibi, evde NSAİ ağrı kesici.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>ÜROLOJİ KONSULTASYONU:</h4><p>İdrar akışı tıkanıklığı, tek böbrek, enfeksiyon, tekrarlayan atak.  NOT: PDF BAK!!</p></div>" },
+            { title: "KRONİK GUT", content: "<ul class='list-disc list-inside space-y-1'><li><b>Allogut 300 mg:</b> 1x1</li><li><b>Colchium dispert drj 0,5 mg:</b> 1x1</li><li><b>Dolorex:</b> 3x1</li><li>Ekstremiteler soğuktan nemden korunmalıdır, bol sıvı alınmalıdır.</li></ul>" },
+            { title: "KIZAMIK/KIZAMIKÇIK/KABAKULAK", content: "<p>Viral olduğu için tedavileri yoktur, ateş yükselmesi önlenmelidir. Bunun için calpol pedifen dönüşümlü olarak verilir. Kabakulak nedeniyle komplikasyon olarak orşit olusmuşsa testis elevasyona alınarak soğuk uygulama yapılır.</p>" },
+            { title: "MYALJİ", content: "<p>Dikloron ve muscoril yaptır.</p><p class='mt-2 font-semibold'>Reçete olarak:</p><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Dikloron tb:</b> 2x1</li><li><b>Muscoril cap:</b> 2x1</li></ul>" },
+            { title: "MANTAR ZEHİRLENMESİ", content: "<p>Her türlü zehirlenmede 114 zehir danışma merkezi aranmalıdır. Rutin kanlar alınmalıdır. BFT ve KCFT bozuklukları DİKKAT. Semptomatik 500 cc Sf içinde BUSCOPAN+METPAMİD+PANTO verelim. Bulantı fazlaysa ZOFFRAN verilebilir.</p>" },
+            { title: "MEME BAŞI ÇATLAĞI", content: "<p><b>Bepanthene pomad:</b> 2x1</p>" },
+            { title: "OTİTİS MEDİA", content: "<ul class='list-disc list-inside space-y-1'><li><b>Amoklavin 1000 mg tb:</b> 2x1 (7 gün)</li><li><b>Dikloron tb:</b> 2x1</li><li>Gerekirse <b>otrivine spray:</b> 2x1 (max 5 gün)</li></ul><p class='mt-2'>Penisilin allerjisi varsa <b>klacid 500 mg tb:</b> 2x1 (10 gün). 3 günde düzelme olmazsa <b>moxitec tb:</b> 1x1 (10 gün).</p>" },
+            { title: "OTİTİS İNTERNA (Labirentit)", content: "<div><h4 class='font-bold text-sky-700'>Tanım:</h4><p>İç kulak yapılarının enfeksiyonu veya iltihabıdır. İşitme ve denge fonksiyonlarını etkiler.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>Belirti ve Bulgular:</h4><p>İşitme kaybı, baş dönmesi, denge bozukluğu, ataksi, nistagmus.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>Tedavi:</h4><ol class='list-decimal list-inside space-y-1'><li><b>Moxitec 400 mg tablet:</b> 1x1</li><li><b>İbuprofen 600 mg tablet:</b> 4x1</li></ol><p class='mt-1'>Not: Kulak damlaları bu durumda etkili değildir.</p></div>" },
+            { title: "OTİTİS EKSTERNA", content: "<p>Tragus'a basıldığında ciddi bir ağrı olursa tanı yüksek ihtimalle otitis eksternadır.</p><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Amoklavin 1000 mg tb:</b> 2x1 veya <b>Aksef 500:</b> 2x1</li><li><b>Parol tb:</b> 4x1</li></ul>" },
+            { title: "OSTEOPOROZ", content: "<ul class='list-disc list-inside space-y-1'><li><b>Calcium-D sandoz eff tb:</b> 2x1 (1yıl)</li><li><b>Fosomax tb 10 mg:</b> 1x1 (sabah aç, hasta içtikten sonra bol su da içmeli ve yarım saat uzanmamalı).</li></ul>" },
+            { title: "PNÖMONİ (TİPİK/ATİPİK)", content: "<p>Tipikse avelox, atipikse klamer/macrol verilir.</p><div class='mt-2'><strong class='block font-semibold text-sky-700'>Yetişkin (Tipik):</strong><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Avelox 400:</b> 1x1 (7 gün)</li><li><b>Asist:</b> 3x1</li><li><b>Parol tb:</b> 4x1</li></ul></div><div class='mt-4'><strong class='block font-semibold text-sky-700'>Yetişkin (Atipik):</strong><ul class='list-disc list-inside mt-1 space-y-1'><li><b>Klamer 500 mg tb:</b> 2x1 (10 gün)</li><li><b>Asist:</b> 3x1</li><li><b>Parol tb:</b> 4x1</li></ul></div>" },
+            { title: "PAMUKÇUK (MONİLİAZİS)", content: "<ol class='list-decimal list-inside space-y-1'><li><b>Mikostatin süsp:</b> 4x1 damlalık dolusu (15 gün) ağızda uzun süre tutulacak.</li><li>Bikarbonatlı pansuman.</li></ol>" },
+            { title: "PARONİŞYA", content: "<p>Tırnak çevresi inflamasyonudur. Diğer adı dolamadır. Etken staf. aureus'tur.</p><ul class='list-disc list-inside mt-2 space-y-1'><li><b>Augmentin 1000 mg tb:</b> 2x1 (7 gün)</li><li><b>Parol tb:</b> 4x1</li></ul>" },
+            { title: "PUERPERAL MASTİT", content: "<ul class='list-disc list-inside space-y-1'><li><b>Augmentin 1000 mg tb:</b> 2x1 (7gün)</li><li><b>Parol tb:</b> 4x1</li></ul>" },
+            { title: "PEPTİK ÜLSER", content: "<ol class='list-decimal list-inside space-y-1'><li><b>Lansor 30 mg/ 28 tb:</b> 1x1 (lay)</li><li>Dahiliye polk.</li></ol>" },
+            { title: "REFLÜ (GÖR)", content: "<p><b>Gaviscon şurup:</b> 3x1</p><p class='mt-2'>45 yaş üstü ise, ailede mide kanseri öyküsü varsa, kilo kaybı varsa, gaitada gizli kan varsa endoskopi yapılması için polk önerilmelidir.</p>" },
+            { title: "REPLANTASYON", content: "<div><h4 class='font-bold text-sky-700'>Kopan Uzuv İçin:</h4><p>Sadece SF ya da RL ile yıkanır. Nemli gazlı beze sarılarak naylon torbaya koyulur. Başka bir torbaya buz koyulur, dokunun bulunduğu torba buzlu torbaya koyulur.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>Geriye Kalan Dokuya:</h4><p>SF ya da RL ile yıkanır. Kanama varsa basınçlı pansuman yapılır. Durmazsa turnike (yarım saatte bir gevşetilmeli). Ekstremite elevasyonda tutulur. İV 2 gram Desefin ve tetanoz im verilip konsülte edilmeli/sevk edilmelidir.</p></div>" },
+            { title: "SEBOREİK DERMATIT", content: "<ul class='list-disc list-inside space-y-1'><li><b>Ketoral şampuan:</b> haftada 3 kez saçta 5 dk bekletilerek yıkanır.</li><li>Çinko içeren şampuanla saç günde bir kez yıkanmalıdır.</li><li>Benzoil peroksit içeren bir krem günde bir kez sürülür.</li><li><b>Hipokort krem:</b> (7 gün) akşam sürülecek.</li></ul><p class='mt-2'>Sadece çinkolu şampuan ve aksil krem bile lezyonları tamamen geçirebiliyor.</p>" },
+            { title: "UYUZ", content: "<ol class='list-decimal list-inside space-y-1'><li><b>Metrin:</b> 1x1</li><li><b>Kwellada losyon:</b> (Bir kez kullanılması ardından 1 hafta sonra tekrarlanması önerilmektedir.)<br>12 yaş: 30 ml, 6-12 yaş: 15 ml, 1-5 yaş: 7,5 ml, 1 yaş altı: 3,75 ml</li><li><b>Deslodin 5 mg:</b> 1x1</li></ol>" },
+            { title: "VERTIGO-SANTRAL TİP", content: "<ul class='list-disc list-inside space-y-1'><li>Nistagmus sürekli ve pozisyondan etkilenmez.</li><li>Dikey nistagmus görülmesi.</li><li>Nörolojik bulgular eşlik eder (dizartri, çift görme, ekstremite güçsüzlüğü vb.).</li><li>Yürüme güçlüğü, ataksi belirgin.</li><li>Beyin sapı veya serebellum kaynaklıdır → Acil nörolojik değerlendirme ve beyin görüntüleme gerekir.</li></ul>" },
+            { title: "VERTIGO-PERİFERİK TİP", content: "<p>Vertigo, kişinin kendisinin veya çevresinin döndüğü hissiyle karakterize, denge sistemini etkileyen bir semptomdur. Periferik vertigo, iç kulak veya vestibüler sinir kaynaklıdır.</p><h4 class='font-bold mt-3'>Öncelikle Ekarte Edilmesi Gereken Diğer Sistemik Nedenler:</h4><ul class='list-disc list-inside'><li>Hipoglisemi</li><li>Anemi</li><li>Gebelik</li><li>Hipotansiyon</li></ul><h4 class='font-bold mt-3'>Acil Müdahale:</h4><p>250 cc Serum Fizyolojik içine 2 ampul Nootropil (Piracetam), 1 ampul Dramamine (Dimenhidrinat) 2 saatlik infüzyonla uygulanır. Sonrasında hasta taburcu edilir.</p><h4 class='font-bold mt-3'>Evde Reçete Planı:</h4><ul class='list-disc list-inside'><li>Betaserc 8 mg tablet - günde 3 kez 1 tablet (3x1)</li><li>Dramamine tablet - günde 1 kez 1 tablet (1x1)</li><li>Periferik Vertigo Lehine Bulgular:</li><li>
+Kusma eşlik edebilir </li><li>Ani başlangıçlı baş dönmesi</li><li> Pozisyonla tetiklenme veya kötüleşme</li><li> Tekrarlayan ataklar (rekürrens) </li><li>Hareketle artış</li> <li>Genellikle işitme semptomları (tinnitus, dolgunluk hissi) eşlik edebilir</li><li> Nistagmus olabilir, ancak dikey değil, yatay ve baskılanabilir nistagmustur </li></ul>" },
+            { title: "VERRÜ", content: "<p><b>Verrütol sol 2x1</b> (3ay)</p><p>S: üzerindeki ince tabaka kaldırılıp uygulanacak.</p>" },
+            { title: "VARİS", content: "<ul class='list-disc list-inside space-y-1'><li><b>Daflon 500 mg tb:</b> 2x1</li><li><b>Ecopirin 100 mg tb:</b> 1x1</li><li>Kompresyon amacıyla varis çorabı önerilebilir.</li><li>Analjezik olarak arveles veya dolorex tercih edilebilir. S:2x1</li></ul>" },
+            { title: "YUMUŞAK DOKU TRAVMASI", content: "<ul class='list-disc list-inside space-y-1'><li><b>Fastjel jel:</b> 2x1</li><li><b>Dikloron tb</b></li><li>Kızarıklık varsa <b>hirudoid jel:</b> 2x1</li><li>Mide şikayetleri varsa dikloron'a ek olarak <b>panto 1x1</b> ekle (aç alacak ve 30 dk beklesin).</li></ul>" },
+            { title: "YUMUŞAK DOKU ENFEKSİYONU", content: "<ul class='list-disc list-inside space-y-1'><li><b>Aksef 500 mg:</b> 2x1 (7gün)</li><li><b>Bactroban pomad:</b> 2x1</li><li><b>Parol tb:</b> 4x1</li></ul>" },
+            { title: "YENİDOĞAN KONJUNKTİVİTİ", content: "<ul class='list-disc list-inside space-y-1'><li><b>Gentagut damla:</b> 4x2 (7 gün)</li><li><b>Terramycin pomad:</b> 1x1 (gece)</li><li>Pediatri polk kontol.</li></ul>" },
+            { title: "ZONA", content: "<ol class='list-decimal list-inside space-y-1'><li><b>Valtrex 1000 mg:</b> 2x1</li><li><b>Asiviral:</b> 3x1</li><li><b>Dolorex:</b> 3x1</li><li><b>Eau borique %2</b> ile krutlanana kadar sil, krutlandıktan sonra <b>bactroban pomad:</b> 3x1</li><li>Dermatoloji polk önerelim.</li></ol>" },
+            { title: "YENİDOĞAN SARILIĞI", content: "<p>Sarılık, bilirubin düzeyi 5 mg/dL aştığında gözle fark edilebilir hâle gelir. İlk olarak yüzde sararma başlar.</p><div class='mt-3'><h4 class='font-bold text-sky-700'>Fizyolojik Sarılık (Normal Sarılık):</h4><p>Bebeklerin yaklaşık %60'ında görülür. Karaciğerin bilirubini yeterince hızlı işleyememesi nedeniyle oluşur. Genellikle tedavi gerektirmez, ancak izlenmelidir.</p></div><div class='mt-3'><h4 class='font-bold text-sky-700'>Patolojik Sarılık - Sevk Gerektiren Durumlar:</h4><ul class='list-disc list-inside'><li>İlk 24 saat içinde başlaması veya 3. günden sonra yeniden ortaya çıkması.</li><li>Bilirubin düzeyinde günde 5 mg/dL'den fazla artış.</li><li>Total bilirubin >15 mg/dL. Direkt bilirubin >2 mg/dL.</li></ul></div><div class='mt-3'><h4 class='font-bold text-sky-700'>Tedavi Yöntemleri:</h4><p>Fototerapi, Exchange transfusion (kan değişimi), Altta yatan nedenin tedavisi.</p></div>" },
+        ];
 
-        function shuffle(array) {
-            let currentIndex = array.length, randomIndex;
-            while (currentIndex !== 0) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex--;
-                [array[currentIndex], array[randomIndex]] = [
-                    array[randomIndex], array[currentIndex]];
-            }
-            return array;
-        }
+        const container = document.getElementById('accordion-container');
 
-        function initializeGame() {
-            matchedPairs = 0;
-            moves = 0;
-            movesElement.textContent = moves;
-            flippedCards = [];
-            lockBoard = false;
-            winMessage.style.display = 'none';
-            gameBoard.innerHTML = '';
-            cards = [];
-            cardSymbols = shuffle([...symbols, ...symbols]);
-            cardSymbols.forEach(symbol => {
-                createCardElement(symbol);
+        data.forEach(item => {
+            const accordionItem = document.createElement('div');
+            accordionItem.className = 'bg-white rounded-lg shadow-md overflow-hidden';
+
+            const button = document.createElement('button');
+            button.className = 'accordion-button w-full text-left p-4 flex justify-between items-center text-lg font-semibold text-gray-700 hover:bg-gray-100 focus:outline-none';
+            button.innerHTML = `
+                <span>${item.title}</span>
+                <svg class="w-6 h-6 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            `;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'accordion-content border-t border-gray-200 text-gray-600';
+            contentDiv.innerHTML = item.content;
+
+            accordionItem.appendChild(button);
+            accordionItem.appendChild(contentDiv);
+            container.appendChild(accordionItem);
+        });
+
+        container.addEventListener('click', function(event) {
+            const button = event.target.closest('.accordion-button');
+            if (!button) return;
+
+            const wasActive = button.classList.contains('active');
+
+            // Close all accordions
+            container.querySelectorAll('.accordion-button').forEach(btn => {
+                btn.classList.remove('active');
+                btn.querySelector('svg').classList.remove('rotate-180');
             });
-        }
 
-        function createCardElement(symbol) {
-             const card = document.createElement('div');
-             card.classList.add('card');
-             card.dataset.symbol = symbol;
-             card.innerHTML = `
-                 <div class="card-face card-back">?</div>
-                 <div class="card-face card-front">${symbol}</div>
-             `;
-             card.addEventListener('click', handleCardClick);
-             gameBoard.appendChild(card);
-             cards.push(card);
-        }
-
-        function handleCardClick(event) {
-            const clickedCard = event.currentTarget;
-            if (lockBoard ||
-                clickedCard.classList.contains('is-flipped') ||
-                clickedCard.classList.contains('is-matched') ||
-                flippedCards.includes(clickedCard))
-            {
-                return;
+            // If the clicked button was not the one that was active, open it.
+            // This makes it a "one at a time" accordion. Clicking an open one closes it.
+            if (!wasActive) {
+                button.classList.add('active');
+                button.querySelector('svg').classList.add('rotate-180');
             }
-            flipCard(clickedCard);
-            flippedCards.push(clickedCard);
-            if (flippedCards.length === 2) {
-                incrementMoves();
-                lockBoard = true;
-                checkForMatch();
-            }
-        }
-
-        function flipCard(card) {
-            card.classList.add('is-flipped');
-        }
-
-        function checkForMatch() {
-            const [card1, card2] = flippedCards;
-            const isMatch = card1.dataset.symbol === card2.dataset.symbol;
-            if (isMatch) {
-                cardsMatch();
-            } else {
-                cardsMismatch();
-            }
-        }
-
-        function cardsMatch() {
-            const [card1, card2] = flippedCards;
-            card1.classList.add('is-matched');
-            card2.classList.add('is-matched');
-            matchedPairs++;
-            resetBoardState();
-            if (matchedPairs === symbols.length) {
-                setTimeout(() => {
-                     winMessage.style.display = 'block';
-                }, 600);
-            }
-        }
-
-        function cardsMismatch() {
-            setTimeout(() => {
-                const [card1, card2] = flippedCards;
-                if (card1 && !card1.classList.contains('is-matched')) {
-                    card1.classList.remove('is-flipped');
-                }
-                if (card2 && !card2.classList.contains('is-matched')) {
-                    card2.classList.remove('is-matched');
-                }
-                resetBoardState();
-            }, 1000);
-        }
-
-        function incrementMoves() {
-            moves++;
-            movesElement.textContent = moves;
-        }
-
-        function resetBoardState() {
-            flippedCards = [];
-            lockBoard = false;
-        }
-
-        restartButton.addEventListener('click', initializeGame);
-        initializeGame();
-        // ... (JavaScript kodunun sonu) ...
+        });
     </script>
 
 </body>
 </html>
+
